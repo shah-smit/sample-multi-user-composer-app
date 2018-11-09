@@ -1,0 +1,23 @@
+/**
+ * New query file
+ */
+query availablePenguins{
+  description: "Select all penguins that are owned by the whole saler"
+  statement:
+      SELECT org.collectable.penguin.Penguin
+          WHERE (owner=='resource:org.collectable.penguin.Collector#WHOLESALER')
+}
+
+query myPenguins{
+  description: "Select all penguins that are owned by me"
+  statement:
+      SELECT org.collectable.penguin.Penguin
+          WHERE (owner!='resource:org.collectable.penguin.Collector#WHOLESALER')
+}
+
+query getParticipantIdentity{
+  description: "Get IdentityId from name param"
+  statement:
+        SELECT org.hyperledger.composer.system.Identity
+          WHERE (name == _$nameParam)
+}
