@@ -8,6 +8,22 @@ export class RestService {
   constructor(private httpClient: HttpClient) {
   }
 
+  private getCookie(name: string) {
+    let ca: Array<string> = document.cookie.split(';');
+    let caLen: number = ca.length;
+    let cookieName = `${name}=`;
+    let c: string;
+
+    for (let i: number = 0; i < caLen; i += 1) {
+      c = ca[i].replace(/^\s+/g, '');
+      if (c.indexOf(cookieName) == 0) {
+        return c.substring(cookieName.length, c.length);
+      }
+    }
+    return '';
+  }
+
+
   setupDemo() {
     return this.httpClient.post('http://localhost:3000/api/org.collectable.penguin._demoSetup', null, { withCredentials: true }).toPromise();
   }
@@ -23,7 +39,10 @@ export class RestService {
     //   userID: data.id,
     //   options: {}
     // };
-
+    if(this.getCookie('access_token') == null || this.getCookie('access_token') == undefined || this.getCookie('access_token') === ""){
+      throw "Access Token Not Found";
+      return;
+    }
     const identity = {
       participant: 'org.collectable.penguin.Collector#' + id,
       userID: id,
@@ -40,7 +59,7 @@ export class RestService {
 
         const formData = new FormData();
         formData.append('card', file);
-        console.log("TEEEEEEEST3")
+        console.log("TEEEEEEEST3", formData.get('card'))
         const headers = new HttpHeaders();
         headers.set('Content-Type', 'multipart/form-data');
         return this.httpClient.post('http://localhost:3000/api/wallet/import', formData, {
@@ -51,7 +70,11 @@ export class RestService {
       .then((res) => {
         const formData = new FormData();
         console.log("TEEEEEEEST")
-        return this.httpClient.post('http://localhost:3000/api/wallet/'+id+'%40bc091120181139/setDefault?access_token=eili0FfVdvzpLwnwXOdS858tHLlwx2hV0MfDb9aUnhnBN7YFDF0y10tm3wdlEXoH', {}).toPromise();
+        var access_token = this.getCookie('access_token');
+        access_token = access_token.replace('s%3A','');
+        access_token = access_token.substring(0,access_token.indexOf('.'));
+        console.log(access_token);
+        return this.httpClient.post('http://localhost:3000/api/wallet/' + id + '%40bc091120181139/setDefault?access_token='+access_token, {}).toPromise();
         // return this.httpClient.post('http://localhost:3000/api/wallet/'+id+'@bc091120181139/setDefault',{}).toPromise()
       });
   }
@@ -68,6 +91,10 @@ export class RestService {
 
 
   getCurrentUser() {
+    if(this.getCookie('access_token') == null || this.getCookie('access_token') == undefined || this.getCookie('access_token') === ""){
+      throw "Access Token Not Found";
+      return;
+    }
     return this.httpClient.get('http://localhost:3000/api/system/ping', { withCredentials: true }).toPromise()
       .then((data) => {
         return data['participant'];

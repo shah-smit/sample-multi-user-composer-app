@@ -18,6 +18,8 @@ export class AppComponent implements OnInit {
   constructor(private route: ActivatedRoute,
     private router: Router,
     private restService: RestService) {
+
+      this.getCurrentUser();
   }
 
   private availablePenguins;
@@ -59,10 +61,19 @@ export class AppComponent implements OnInit {
 
   onSignIn() {
     this.signInInProgress = true;
-    return this.restService.signin(this.signUp.id).then((res) => {
-      window.location.href = 'http://localhost:3000/auth/github'
-      //return this.getCurrentUser();
-    })
+    try {
+      return this.restService.signin(this.signUp.id).then((res) => {
+        return this.getCurrentUser();
+      }).then((res) => {
+        console.log("success");
+      })
+    } catch (error) {
+      console.log(error);
+      if (error == 'Access Token Not Found') {
+        alert("Log into github before you can sign in");
+      }
+    }
+
     // .then(() => {
     //   this.congaName = this.CONGAS[this.getRandomIntInclusive(0, this.CONGAS.length - 1)];
     //   return this.getAvailablePenguins();
@@ -98,16 +109,16 @@ export class AppComponent implements OnInit {
     this.signUpInProgress = true;
     return this.restService.signUp(this.signUp)
       .then(() => {
-        return this.getCurrentUser();
-      })
-      .then(() => {
-        this.congaName = this.CONGAS[this.getRandomIntInclusive(0, this.CONGAS.length - 1)];
-        return this.getAvailablePenguins();
-      })
-      .then(() => {
-        return this.getMyPenguins();
-      })
-      .then(() => {
+        //   return this.getCurrentUser();
+        // })
+        // .then(() => {
+        //   this.congaName = this.CONGAS[this.getRandomIntInclusive(0, this.CONGAS.length - 1)];
+        //   return this.getAvailablePenguins();
+        // })
+        // .then(() => {
+        //   return this.getMyPenguins();
+        // })
+        // .then(() => {
         this.loggedIn = true;
         this.signUpInProgress = false;
         alert("SIGN UP SUCCESS");
